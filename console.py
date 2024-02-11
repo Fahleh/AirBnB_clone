@@ -62,7 +62,7 @@ class HBNBCommand(cmd.Cmd):
 
     intro = "Welcome. Type 'help' to see the list of commands.\n\n\
 ================================================================\n"
-    prompt = "(hbnb) " if sys.__stdin__.isatty() else ""
+    prompt = "(hbnb) "
 
     classes = {
         "BaseModel": BaseModel,
@@ -73,17 +73,6 @@ class HBNBCommand(cmd.Cmd):
         "Place": Place,
         "Review": Review
     }
-
-    def preloop(self):
-        """Prints if isatty is false"""
-        if not sys.__stdin__.isatty():
-            print('(hbnb)')
-
-    def postcmd(self, stop, line):
-        """Prints if isatty is false"""
-        if not sys.__stdin__.isatty():
-            print('(hbnb) ', end='')
-        return stop
 
     def emptyLine(self):
         """Handles the behaviour when an empty line is entered"""
@@ -220,13 +209,12 @@ class HBNBCommand(cmd.Cmd):
                         else:
                             print("** value missing **")
                     else:
-                        temp = storage.all()[curr_id]
-                        if arg_list[2] in type(temp).__dict__:
-                            ret_type =
-                            type(temp.__class__.__dict__[arg_list[2]])
-                            setattr(temp, arg_list[2], ret_type(arg_list[3]))
+                        tmp = storage.all()[curr_id]
+                        if arg_list[2] in type(tmp).__dict__:
+                            rt_type = type(tmp.__class__.__dict__[arg_list[2]])
+                            setattr(tmp, arg_list[2], rt_type(arg_list[3]))
                         else:
-                            setattr(temp, arg_list[2], arg_list[3])
+                            setattr(tmp, arg_list[2], arg_list[3])
                 else:
                     print("** no instance found **")
             storage.save()

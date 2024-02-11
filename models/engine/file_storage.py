@@ -40,7 +40,7 @@ class FileStorage:
         Deserializes the JSON file to __objects ONLY IF it exists!
         If the file doesn’t exist, no exception should be raised.
         """
-        modules = {
+        mods = {
                 "BaseModel": BaseModel,
                 "User": User,
                 "State": State,
@@ -53,6 +53,6 @@ class FileStorage:
             with open(self.__file_path, 'r') as fd:
                 temp = json.load(fd)
             for key in temp:
-                self.__objects[key] = modules[temp[key]["__class__"]](**temp[key])
+                self.__objects[key] = mods[temp[key]["__class__"]](**temp[key])
         except FileNotFoundError:
             pass

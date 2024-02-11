@@ -60,8 +60,6 @@ def validate(args):
 class HBNBCommand(cmd.Cmd):
     """Defines the command interpreter for the AirBnB clone"""
 
-    intro = "Welcome. Type 'help' to see the list of commands.\n\n\
-================================================================\n"
     prompt = "(hbnb) "
 
     classes = {

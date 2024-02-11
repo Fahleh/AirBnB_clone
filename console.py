@@ -2,7 +2,9 @@
 """This module is the console and is entry point of the command interpreter"""
 
 import cmd
+import json
 import re
+import sys
 from shlex import split
 from models.base_model import BaseModel
 from models import storage
@@ -57,11 +59,10 @@ def validate(args):
 
 class HBNBCommand(cmd.Cmd):
     """Defines the command interpreter for the AirBnB clone"""
-    
-    intro = "Welcome to the HBNB cmd. Type 'help' to see the list of commands.\n\n\
+
+    intro = "Welcome. Type 'help' to see the list of commands.\n\n\
 ================================================================\n"
-    
-    prompt = "(hbnb) "
+    prompt = "(hbnb) " if sys.__stdin__.isatty() else ""
 
     classes = {
         "BaseModel": BaseModel,
@@ -72,6 +73,17 @@ class HBNBCommand(cmd.Cmd):
         "Place": Place,
         "Review": Review
     }
+
+    def preloop(self):
+        """Prints if isatty is false"""
+        if not sys.__stdin__.isatty():
+            print('(hbnb)')
+
+    def postcmd(self, stop, line):
+        """Prints if isatty is false"""
+        if not sys.__stdin__.isatty():
+            print('(hbnb) ', end='')
+        return stop
 
     def emptyLine(self):
         """Handles the behaviour when an empty line is entered"""
@@ -87,13 +99,13 @@ class HBNBCommand(cmd.Cmd):
             "update": self.do_update
         }
 
-
         match_found = re.search(r"\.", args)
         if match_found is not None:
             arg = [args[:match_found.span()[0]], args[match_found.span()[1]:]]
             match_found = re.search(r"\((.*?)\)", arg[1])
             if match_found is not None:
-                new_cmd = [arg[1][:match_found.span()[0]], match_found.group()[1:-1]]
+                new_cmd = [arg[1][:match_found.span()[0]],
+                           match_found.group()[1:-1]]
                 if new_cmd[0] in commands.keys():
                     execute = f"{arg[0]} {new_cmd[1]}"
                     return commands[new_cmd[0]](execute)
@@ -102,7 +114,7 @@ class HBNBCommand(cmd.Cmd):
 
     def do_count(self, args):
         """Returns the number of instances of a class"""
-        arg_list = validate(args)
+        arg_list = parse(args)
         count = 0
         for obj in storage.all().values():
             if arg_list[0] == type(obj).__name__:
@@ -179,52 +191,45 @@ class HBNBCommand(cmd.Cmd):
 
     def do_update(self, args):
         """
-        Updates a class instance based on its name and id by adding to or 
+        Updates a class instance based on its name and id by adding to or
         updating its attributes
         [USAGE]: update <class> <id> <name> "<value>"
         """
         arg_list = validate(args)
-        obj = storage.all()
-
-        if len(arg_list) == 0:
-            print("** class name missing **")
-            return False
-        if arg_list[0] not in HBNBCommand.classes:
-            print("** class doesn't exist **")
-            return False
-        if len(arg_list) == 1:
-            print("** instance id missing **")
-            return False
-        if f"{arg_list[0]}.{arg_list[1]}" not in obj.keys():
-            print("** no instance found **")
-            return False
-        if len(arg_list) == 2:
-            print("** attribute name missing **")
-            return False
-        if len(arg_list) == 3:
-            try:
-                type(eval(arg_list[2])) != dict
-            except NameError:
-                print("** value missing **")
-                return False
-
-        if len(arg_list) == 4:
-            new_dict = obj[f"{arg_list[0]}.{arg_list[1]}"]
-            if arg_list[2] in new_dict.__class__.__dict__.keys():
-                arg_type = type(obj.__class__.__dict__[argl[2]])
-                new_dict.__dict__[arg_list[2]] = arg_type(arg_list[3])
+        if arg_list:
+            if len(arg_list) == 1:
+                print("** instance id missing **")
             else:
-                new_dict.__dict__[arg_list[2]] = arg_list[3]
-        elif type(eval(arg_list[2])) == dict:
-            new_dict = obj[f"{arg_list[0]}.{arg_list[1]}"]
-            for key, value in eval(arg_list[2]).items():
-                if (key in new_dict.__class__.__dict__.keys() and
-                        type(new_dict.__class__.__dict__[key]) in {str, int, float}):
-                    arg_type = type(new_dict.__class__.__dict__[key])
-                    new_dict.__dict__[key] = arg_type(value)
+                print("arglistt is more than 1")
+                curr_id = f"{arg_list[0]}.{arg_list[1]}"
+                if curr_id in storage.all():
+                    if len(arg_list) == 2:
+                        print("** attribute name missing **")
+                    elif len(arg_list) == 3:
+                        if type(eval(arg_list[2])) == dict:
+                            obj = storage.all()["{}.{}".format(arg_list[0],
+                                                               arg_list[1])]
+                            for k, v in eval(arg_list[2]).items():
+                                if (k in obj.__class__.__dict__.keys() and
+                                        type(obj.__class__.__dict__[k])
+                                        in {str, int, float}):
+                                    valtype = type(obj.__class__.__dict__[k])
+                                    obj.__dict__[k] = valtype(v)
+                                else:
+                                    obj.__dict__[k] = v
+                        else:
+                            print("** value missing **")
+                    else:
+                        temp = storage.all()[curr_id]
+                        if arg_list[2] in type(temp).__dict__:
+                            ret_type =
+                            type(temp.__class__.__dict__[arg_list[2]])
+                            setattr(temp, arg_list[2], ret_type(arg_list[3]))
+                        else:
+                            setattr(temp, arg_list[2], arg_list[3])
                 else:
-                    new_dict.__dict__[key] = value
-        storage.save()
+                    print("** no instance found **")
+            storage.save()
 
 
 if __name__ == "__main__":

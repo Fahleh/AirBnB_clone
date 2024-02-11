@@ -4,6 +4,7 @@
 from uuid import uuid4
 from datetime import datetime
 
+
 class BaseModel:
     """
     A class that defines all the attributes and

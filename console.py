@@ -62,7 +62,7 @@ class HBNBCommand(cmd.Cmd):
 
     intro = "Welcome. Type 'help' to see the list of commands.\n\n\
 ================================================================\n"
-    prompt = "(hbnb) " if sys.__stdin__.isatty() else ""
+    prompt = "(hbnb) "
 
     classes = {
         "BaseModel": BaseModel,
@@ -73,17 +73,6 @@ class HBNBCommand(cmd.Cmd):
         "Place": Place,
         "Review": Review
     }
-
-    def preloop(self):
-        """Prints if isatty is false"""
-        if not sys.__stdin__.isatty():
-            print('(hbnb)')
-
-    def postcmd(self, stop, line):
-        """Prints if isatty is false"""
-        if not sys.__stdin__.isatty():
-            print('(hbnb) ', end='')
-        return stop
 
     def emptyLine(self):
         """Handles the behaviour when an empty line is entered"""

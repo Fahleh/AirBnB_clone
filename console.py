@@ -187,7 +187,6 @@ class HBNBCommand(cmd.Cmd):
             if len(arg_list) == 1:
                 print("** instance id missing **")
             else:
-                print("arglistt is more than 1")
                 curr_id = f"{arg_list[0]}.{arg_list[1]}"
                 if curr_id in storage.all():
                     if len(arg_list) == 2:

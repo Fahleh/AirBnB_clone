@@ -209,13 +209,12 @@ class HBNBCommand(cmd.Cmd):
                         else:
                             print("** value missing **")
                     else:
-                        temp = storage.all()[curr_id]
-                        if arg_list[2] in type(temp).__dict__:
-                            ret_type =
-                            type(temp.__class__.__dict__[arg_list[2]])
-                            setattr(temp, arg_list[2], ret_type(arg_list[3]))
+                        tmp = storage.all()[curr_id]
+                        if arg_list[2] in type(tmp).__dict__:
+                            rt_type = type(tmp.__class__.__dict__[arg_list[2]])
+                            setattr(tmp, arg_list[2], rt_type(arg_list[3]))
                         else:
-                            setattr(temp, arg_list[2], arg_list[3])
+                            setattr(tmp, arg_list[2], arg_list[3])
                 else:
                     print("** no instance found **")
             storage.save()
